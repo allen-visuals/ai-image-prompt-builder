@@ -140,12 +140,9 @@ export default function App() {
       
       {/* LEFT PANEL - Form */}
       <div className="w-full md:w-1/2 lg:w-5/12 h-screen overflow-y-auto border-r border-zinc-800 p-6 xl:p-10 custom-scrollbar">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-neon-blue to-neon-purple bg-clip-text text-transparent flex items-center gap-3">
-            <Sparkles className="w-8 h-8 text-neon-blue" />
-            Prompt Builder
-          </h1>
-          <p className="text-zinc-400 mt-2">Craft precise AI image generations.</p>
+        <header className="mb-8 flex flex-col items-start">
+          <img src="/logo.png" alt="AI Image Prompt Builder by allenvisuals" className="w-full max-w-xs sm:max-w-md h-auto" />
+          <p className="text-zinc-400 mt-4">Craft precise AI image generations.</p>
         </header>
 
         <Accordion title="Technical Parameters" isOpen={openSections.technical} onToggle={() => toggleSection('technical')}>
