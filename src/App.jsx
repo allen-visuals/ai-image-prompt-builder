@@ -217,8 +217,8 @@ export default function App() {
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col gap-6">
-          <div className="flex-1 bg-zinc-900 border border-zinc-800 rounded-xl p-6 relative group overflow-y-auto custom-scrollbar">
+        <div className="flex flex-col gap-6">
+          <div className="h-64 md:h-[40vh] bg-zinc-900 border border-zinc-800 rounded-xl p-6 relative group overflow-y-auto custom-scrollbar">
             {generatePrompt ? (
               <p className="text-xl leading-relaxed text-zinc-200 font-light tracking-wide">{generatePrompt}</p>
             ) : (
