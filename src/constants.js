@@ -162,6 +162,15 @@ export const OPTIONS = {
     "Studio",
     "Warehouse",
   ],
+  lifestyleClass: [
+    "Working Class / Blue Collar",
+    "Middle Class / Suburban",
+    "Upper-Middle Class / Affluent",
+    "Luxury / High-Net-Worth",
+    "Bohemian / Artistic",
+    "Urban Professional",
+    "Rural / Agricultural",
+  ],
   timeOfDay: [
     "Dawn",
     "Morning",
@@ -193,6 +202,7 @@ export const DEFAULT_STATE = {
   age: "",
   build: "",
   expression: "",
+  lifestyleClass: "",
   // Supporting Subject
   supportingSubjectType: "",
   supportingGender: "",
@@ -201,9 +211,11 @@ export const DEFAULT_STATE = {
   supportingAge: "",
   supportingBuild: "",
   supportingExpression: "",
+  supportingLifestyleClass: "",
   // Environment
   locationType: "",
   locationSpace: "",
+  envLifestyleClass: "",
   timeOfDay: "",
   exactLocation: "",
   environmentDescriptor: "",

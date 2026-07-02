@@ -104,16 +104,16 @@ export default function App() {
     // Medium
     if (state.medium) parts.push(state.medium);
     // Subject definition
-    const subjectParts = [state.gender, state.race, state.ethnicity, state.age, state.build, state.subjectType, state.expression].filter(Boolean);
+    const subjectParts = [state.gender, state.race, state.ethnicity, state.age, state.build, state.lifestyleClass, state.subjectType, state.expression].filter(Boolean);
     if (subjectParts.length > 0) parts.push(subjectParts.join(' '));
     // Supporting Subject definition
-    const supportingSubjectParts = [state.supportingGender, state.supportingRace, state.supportingEthnicity, state.supportingAge, state.supportingBuild, state.supportingSubjectType, state.supportingExpression].filter(Boolean);
+    const supportingSubjectParts = [state.supportingGender, state.supportingRace, state.supportingEthnicity, state.supportingAge, state.supportingBuild, state.supportingLifestyleClass, state.supportingSubjectType, state.supportingExpression].filter(Boolean);
     if (supportingSubjectParts.length > 0) parts.push(`accompanied by a ${supportingSubjectParts.join(' ')}`);
     // Overrides: Action & Wardrobe
     if (state.coreAction) parts.push(state.coreAction);
     if (state.wardrobe) parts.push(`wearing ${state.wardrobe}`);
     // Environment/Background
-    const envParts = [state.locationType, state.locationSpace, state.exactLocation, state.timeOfDay].filter(Boolean);
+    const envParts = [state.locationType, state.envLifestyleClass, state.locationSpace, state.exactLocation, state.timeOfDay].filter(Boolean);
     if (envParts.length > 0) parts.push(envParts.join(', '));
     if (state.environmentDescriptor) parts.push(state.environmentDescriptor);
     if (state.coordinates) parts.push(`Location Coordinates: ${state.coordinates}`);
@@ -177,6 +177,7 @@ export default function App() {
         <Accordion title="Main Subject Definition" isOpen={openSections.subject} onToggle={() => toggleSection('subject')}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
             <Select label="Subject Type" value={state.subjectType} onChange={(v) => updateField('subjectType', v)} options={OPTIONS.subjectType} />
+            <Select label="Lifestyle / Class" value={state.lifestyleClass} onChange={(v) => updateField('lifestyleClass', v)} options={OPTIONS.lifestyleClass} />
             <Select label="Gender" value={state.gender} onChange={(v) => updateField('gender', v)} options={OPTIONS.gender} />
             <Select label="Race" value={state.race} onChange={(v) => updateField('race', v)} options={OPTIONS.race} />
             <Select label="Ethnicity" value={state.ethnicity} onChange={(v) => updateField('ethnicity', v)} options={OPTIONS.ethnicity} />
@@ -189,6 +190,7 @@ export default function App() {
         <Accordion title="Supporting Subject Definition" isOpen={openSections.supportingSubject} onToggle={() => toggleSection('supportingSubject')}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
             <Select label="Subject Type" value={state.supportingSubjectType} onChange={(v) => updateField('supportingSubjectType', v)} options={OPTIONS.subjectType} />
+            <Select label="Lifestyle / Class" value={state.supportingLifestyleClass} onChange={(v) => updateField('supportingLifestyleClass', v)} options={OPTIONS.lifestyleClass} />
             <Select label="Gender" value={state.supportingGender} onChange={(v) => updateField('supportingGender', v)} options={OPTIONS.gender} />
             <Select label="Race" value={state.supportingRace} onChange={(v) => updateField('supportingRace', v)} options={OPTIONS.race} />
             <Select label="Ethnicity" value={state.supportingEthnicity} onChange={(v) => updateField('supportingEthnicity', v)} options={OPTIONS.ethnicity} />
@@ -202,6 +204,7 @@ export default function App() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
             <Select label="Location Type" value={state.locationType} onChange={(v) => updateField('locationType', v)} options={OPTIONS.locationType} />
             <Select label="Location Space" value={state.locationSpace} onChange={(v) => updateField('locationSpace', v)} options={OPTIONS.locationSpace} />
+            <Select label="Env Lifestyle / Class" value={state.envLifestyleClass} onChange={(v) => updateField('envLifestyleClass', v)} options={OPTIONS.lifestyleClass} />
             <Select label="Time of Day" value={state.timeOfDay} onChange={(v) => updateField('timeOfDay', v)} options={OPTIONS.timeOfDay} />
           </div>
           <TextInput label="Exact Location Name" value={state.exactLocation} onChange={(v) => updateField('exactLocation', v)} placeholder="e.g. Central Park, New York" />
