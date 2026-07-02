@@ -62,6 +62,19 @@ const FStopSlider = ({ label, value, onChange }) => (
   </div>
 );
 
+const TextInput = ({ label, value, onChange, placeholder }) => (
+  <div className="mb-4">
+    <label className="block text-sm font-medium text-zinc-400 mb-1">{label}</label>
+    <input
+      type="text"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      className="w-full bg-zinc-950 border border-zinc-800 text-zinc-100 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-neon-purple transition-all"
+    />
+  </div>
+);
+
 const TextArea = ({ label, value, onChange, placeholder }) => (
   <div className="mb-4">
     <label className="block text-sm font-medium text-zinc-400 mb-1">{label}</label>
@@ -76,7 +89,7 @@ const TextArea = ({ label, value, onChange, placeholder }) => (
 
 export default function App() {
   const [state, setState] = useState(DEFAULT_STATE);
-  const [openSections, setOpenSections] = useState({ technical: true, subject: false, supportingSubject: false, overrides: false });
+  const [openSections, setOpenSections] = useState({ technical: true, subject: false, supportingSubject: false, environment: false, overrides: false });
   const [flavor, setFlavor] = useState('standard');
   const [copied, setCopied] = useState(false);
 
@@ -100,7 +113,9 @@ export default function App() {
     if (state.coreAction) parts.push(state.coreAction);
     if (state.wardrobe) parts.push(`wearing ${state.wardrobe}`);
     // Environment/Background
-    if (state.background) parts.push(state.background);
+    const envParts = [state.locationType, state.exactLocation, state.timeOfDay].filter(Boolean);
+    if (envParts.length > 0) parts.push(envParts.join(', '));
+    if (state.coordinates) parts.push(`Location Coordinates: ${state.coordinates}`);
     // Technical
     if (state.framing) parts.push(state.framing);
     if (state.lens) parts.push(state.lens);
@@ -182,10 +197,18 @@ export default function App() {
           </div>
         </Accordion>
 
+        <Accordion title="Environment / Background" isOpen={openSections.environment} onToggle={() => toggleSection('environment')}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
+            <Select label="Location Type" value={state.locationType} onChange={(v) => updateField('locationType', v)} options={OPTIONS.locationType} />
+            <Select label="Time of Day" value={state.timeOfDay} onChange={(v) => updateField('timeOfDay', v)} options={OPTIONS.timeOfDay} />
+          </div>
+          <TextInput label="Exact Location Name" value={state.exactLocation} onChange={(v) => updateField('exactLocation', v)} placeholder="e.g. Central Park, New York" />
+          <TextInput label="Google Maps Coordinates" value={state.coordinates} onChange={(v) => updateField('coordinates', v)} placeholder="e.g. 40.7826° N, 73.9656° W" />
+        </Accordion>
+
         <Accordion title="Custom Overrides" isOpen={openSections.overrides} onToggle={() => toggleSection('overrides')}>
           <TextArea label="Core Action / Pose" value={state.coreAction} onChange={(v) => updateField('coreAction', v)} placeholder="e.g. sitting on a bench reading a futuristic glowing book..." />
           <TextArea label="Wardrobe" value={state.wardrobe} onChange={(v) => updateField('wardrobe', v)} placeholder="e.g. detailed cyberpunk jacket with neon accents..." />
-          <TextArea label="Background / Environment" value={state.background} onChange={(v) => updateField('background', v)} placeholder="e.g. bustling Tokyo street at night, rain puddles reflecting neon..." />
           <TextArea label="Negative Prompt" value={state.negativePrompt} onChange={(v) => updateField('negativePrompt', v)} placeholder="e.g. ugly, deformed, blurry, low resolution..." />
         </Accordion>
 

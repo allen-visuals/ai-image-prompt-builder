@@ -141,6 +141,21 @@ export const OPTIONS = {
     "Determined",
     "Terrified",
   ],
+  locationType: [
+    "Interior",
+    "Exterior",
+  ],
+  timeOfDay: [
+    "Dawn",
+    "Morning",
+    "Midday / Noon",
+    "Afternoon",
+    "Golden Hour",
+    "Evening",
+    "Dusk / Twilight",
+    "Night",
+    "Midnight",
+  ],
 };
 
 export const DEFAULT_STATE = {
@@ -169,9 +184,13 @@ export const DEFAULT_STATE = {
   supportingAge: "",
   supportingBuild: "",
   supportingExpression: "",
+  // Environment
+  locationType: "",
+  timeOfDay: "",
+  exactLocation: "",
+  coordinates: "",
   // Overrides
   coreAction: "",
   wardrobe: "",
-  background: "",
   negativePrompt: "",
 };
