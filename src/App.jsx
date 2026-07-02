@@ -113,8 +113,9 @@ export default function App() {
     if (state.coreAction) parts.push(state.coreAction);
     if (state.wardrobe) parts.push(`wearing ${state.wardrobe}`);
     // Environment/Background
-    const envParts = [state.locationType, state.exactLocation, state.timeOfDay].filter(Boolean);
+    const envParts = [state.locationType, state.locationSpace, state.exactLocation, state.timeOfDay].filter(Boolean);
     if (envParts.length > 0) parts.push(envParts.join(', '));
+    if (state.environmentDescriptor) parts.push(state.environmentDescriptor);
     if (state.coordinates) parts.push(`Location Coordinates: ${state.coordinates}`);
     // Technical
     if (state.framing) parts.push(state.framing);
@@ -200,9 +201,11 @@ export default function App() {
         <Accordion title="Environment / Background" isOpen={openSections.environment} onToggle={() => toggleSection('environment')}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
             <Select label="Location Type" value={state.locationType} onChange={(v) => updateField('locationType', v)} options={OPTIONS.locationType} />
+            <Select label="Location Space" value={state.locationSpace} onChange={(v) => updateField('locationSpace', v)} options={OPTIONS.locationSpace} />
             <Select label="Time of Day" value={state.timeOfDay} onChange={(v) => updateField('timeOfDay', v)} options={OPTIONS.timeOfDay} />
           </div>
           <TextInput label="Exact Location Name" value={state.exactLocation} onChange={(v) => updateField('exactLocation', v)} placeholder="e.g. Central Park, New York" />
+          <TextArea label="Environment Details / Mood" value={state.environmentDescriptor} onChange={(v) => updateField('environmentDescriptor', v)} placeholder="e.g. bustling street at night, rain puddles reflecting neon, moody atmosphere..." />
           <TextInput label="Google Maps Coordinates" value={state.coordinates} onChange={(v) => updateField('coordinates', v)} placeholder="e.g. 40.7826° N, 73.9656° W" />
         </Accordion>
 
