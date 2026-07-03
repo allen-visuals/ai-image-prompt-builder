@@ -1,20 +1,20 @@
 import { useState, useMemo } from 'react';
-import { ChevronDown, ChevronUp, Copy, RefreshCw, Sparkles, Check, Settings2 } from 'lucide-react';
+import { ChevronDown, ChevronUp, Copy, RefreshCw, Sparkles, Check, Settings2, Camera, User, Users, Image as ImageIcon, Wand2 } from 'lucide-react';
 import { OPTIONS, DEFAULT_STATE } from './constants';
 
-const Accordion = ({ title, isOpen, onToggle, children }) => (
+const Accordion = ({ title, icon: Icon, colorClass, isOpen, onToggle, children }) => (
   <div className="border border-zinc-800 rounded-lg mb-4 overflow-hidden bg-zinc-900/50 backdrop-blur-sm">
     <button
       onClick={onToggle}
       className="w-full flex justify-between items-center p-4 bg-zinc-900 hover:bg-zinc-800 transition-colors"
     >
-      <h3 className="font-semibold text-lg flex items-center gap-2">
-        <Settings2 className="w-5 h-5 text-neon-blue" />
+      <h3 className={`font-semibold text-lg flex items-center gap-3 ${colorClass || 'text-zinc-100'}`}>
+        {Icon && <Icon className="w-5 h-5" />}
         {title}
       </h3>
-      {isOpen ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+      {isOpen ? <ChevronUp className="w-5 h-5 text-zinc-400" /> : <ChevronDown className="w-5 h-5 text-zinc-400" />}
     </button>
-    {isOpen && <div className="p-4">{children}</div>}
+    {isOpen && <div className="p-4 border-t border-zinc-800/50 bg-zinc-900/30">{children}</div>}
   </div>
 );
 
@@ -161,7 +161,7 @@ export default function App() {
           <p className="text-sm md:text-base text-zinc-400 mt-2 md:mt-4">Craft precise AI image generations.</p>
         </header>
 
-        <Accordion title="Technical Parameters" isOpen={openSections.technical} onToggle={() => toggleSection('technical')}>
+        <Accordion title="Technical Parameters" icon={Camera} colorClass="text-blue-400" isOpen={openSections.technical} onToggle={() => toggleSection('technical')}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 items-start">
             <Select label="Medium" value={state.medium} onChange={(v) => updateField('medium', v)} options={OPTIONS.medium} />
             <Select label="Framing" value={state.framing} onChange={(v) => updateField('framing', v)} options={OPTIONS.framing} />
@@ -174,7 +174,7 @@ export default function App() {
           </div>
         </Accordion>
 
-        <Accordion title="Main Subject Definition" isOpen={openSections.subject} onToggle={() => toggleSection('subject')}>
+        <Accordion title="Main Subject Definition" icon={User} colorClass="text-pink-400" isOpen={openSections.subject} onToggle={() => toggleSection('subject')}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
             <Select label="Subject Type" value={state.subjectType} onChange={(v) => updateField('subjectType', v)} options={OPTIONS.subjectType} />
             <Select label="Lifestyle / Class" value={state.lifestyleClass} onChange={(v) => updateField('lifestyleClass', v)} options={OPTIONS.lifestyleClass} />
@@ -195,7 +195,7 @@ export default function App() {
           <TextInput label="Accessories" value={state.accessories} onChange={(v) => updateField('accessories', v)} placeholder="e.g. cybernetic sunglasses, gold chain" />
         </Accordion>
 
-        <Accordion title="Supporting Subject Definition" isOpen={openSections.supportingSubject} onToggle={() => toggleSection('supportingSubject')}>
+        <Accordion title="Supporting Subject Definition" icon={Users} colorClass="text-purple-400" isOpen={openSections.supportingSubject} onToggle={() => toggleSection('supportingSubject')}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
             <Select label="Subject Type" value={state.supportingSubjectType} onChange={(v) => updateField('supportingSubjectType', v)} options={OPTIONS.subjectType} />
             <Select label="Lifestyle / Class" value={state.supportingLifestyleClass} onChange={(v) => updateField('supportingLifestyleClass', v)} options={OPTIONS.lifestyleClass} />
@@ -216,7 +216,7 @@ export default function App() {
           <TextInput label="Accessories" value={state.supportingAccessories} onChange={(v) => updateField('supportingAccessories', v)} placeholder="e.g. silver necklace, watch" />
         </Accordion>
 
-        <Accordion title="Environment / Background" isOpen={openSections.environment} onToggle={() => toggleSection('environment')}>
+        <Accordion title="Environment / Background" icon={ImageIcon} colorClass="text-emerald-400" isOpen={openSections.environment} onToggle={() => toggleSection('environment')}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
             <Select label="Location Type" value={state.locationType} onChange={(v) => updateField('locationType', v)} options={OPTIONS.locationType} />
             <Select label="Location Space" value={state.locationSpace} onChange={(v) => updateField('locationSpace', v)} options={OPTIONS.locationSpace} />
@@ -228,7 +228,7 @@ export default function App() {
           <TextInput label="Google Maps Coordinates" value={state.coordinates} onChange={(v) => updateField('coordinates', v)} placeholder="e.g. 40.7826° N, 73.9656° W" />
         </Accordion>
 
-        <Accordion title="Custom Overrides" isOpen={openSections.overrides} onToggle={() => toggleSection('overrides')}>
+        <Accordion title="Custom Overrides" icon={Wand2} colorClass="text-amber-400" isOpen={openSections.overrides} onToggle={() => toggleSection('overrides')}>
           <TextArea label="Core Action / Pose" value={state.coreAction} onChange={(v) => updateField('coreAction', v)} placeholder="e.g. sitting on a bench reading a futuristic glowing book..." />
           <TextArea label="Wardrobe" value={state.wardrobe} onChange={(v) => updateField('wardrobe', v)} placeholder="e.g. detailed cyberpunk jacket with neon accents..." />
           <TextArea label="Negative Prompt" value={state.negativePrompt} onChange={(v) => updateField('negativePrompt', v)} placeholder="e.g. ugly, deformed, blurry, low resolution..." />
