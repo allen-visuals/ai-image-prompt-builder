@@ -87,6 +87,25 @@ const TextArea = ({ label, value, onChange, placeholder }) => (
   </div>
 );
 
+const ToggleSwitch = ({ label, checked, onChange }) => (
+  <div className="flex items-center justify-between bg-zinc-900/50 p-3 rounded-lg border border-zinc-800 mb-4">
+    <label className="text-sm font-medium text-zinc-300">{label}</label>
+    <button
+      type="button"
+      onClick={() => onChange(!checked)}
+      className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-neon-purple focus:ring-offset-2 focus:ring-offset-zinc-950 ${
+        checked ? 'bg-green-500' : 'bg-zinc-700'
+      }`}
+    >
+      <span
+        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+          checked ? 'translate-x-6' : 'translate-x-1'
+        }`}
+      />
+    </button>
+  </div>
+);
+
 export default function App() {
   const [state, setState] = useState(DEFAULT_STATE);
   const [openSections, setOpenSections] = useState({ technical: true, subject: false, supportingSubject: false, environment: false, overrides: false });
@@ -103,27 +122,58 @@ export default function App() {
     
     // Medium
     if (state.medium) parts.push(state.medium);
+    
     // Subject definition
     const subjectParts = [state.gender, state.race, state.ethnicity, state.skinTone, state.skinAndHandTexture, state.age, state.build, state.hairTexture, state.hairStyle, state.hairColor, state.lifestyleClass, state.subjectType, state.expression, state.bodyPoseAndMovement, state.clothingStyle, state.accessories].filter(Boolean);
-    if (subjectParts.length > 0) parts.push(subjectParts.join(' '));
+    if (subjectParts.length > 0) {
+      let str = subjectParts.join(' ');
+      if (state.useReferenceSubject) str += ' (use reference given)';
+      parts.push(str);
+    } else if (state.useReferenceSubject) {
+      parts.push('(use reference given)');
+    }
+
     // Supporting Subject definition
     const supportingSubjectParts = [state.supportingGender, state.supportingRace, state.supportingEthnicity, state.supportingSkinTone, state.supportingSkinAndHandTexture, state.supportingAge, state.supportingBuild, state.supportingHairTexture, state.supportingHairStyle, state.supportingHairColor, state.supportingLifestyleClass, state.supportingSubjectType, state.supportingExpression, state.supportingBodyPoseAndMovement, state.supportingClothingStyle, state.supportingAccessories].filter(Boolean);
-    if (supportingSubjectParts.length > 0) parts.push(`accompanied by a ${supportingSubjectParts.join(' ')}`);
+    if (supportingSubjectParts.length > 0) {
+      let str = `accompanied by a ${supportingSubjectParts.join(' ')}`;
+      if (state.useReferenceSupportingSubject) str += ' (use reference given)';
+      parts.push(str);
+    } else if (state.useReferenceSupportingSubject) {
+      parts.push('(use reference given)');
+    }
+
     // Overrides: Action & Wardrobe
-    if (state.coreAction) parts.push(state.coreAction);
-    if (state.wardrobe) parts.push(`wearing ${state.wardrobe}`);
+    const overrideParts = [state.coreAction, state.wardrobe ? `wearing ${state.wardrobe}` : ''].filter(Boolean);
+    if (overrideParts.length > 0) {
+      let str = overrideParts.join(', ');
+      if (state.useReferenceOverrides) str += ' (use reference given)';
+      parts.push(str);
+    } else if (state.useReferenceOverrides) {
+      parts.push('(use reference given)');
+    }
+
     // Environment/Background
     const envParts = [state.locationType, state.envLifestyleClass, state.locationSpace, state.exactLocation, state.timeOfDay].filter(Boolean);
-    if (envParts.length > 0) parts.push(envParts.join(', '));
-    if (state.environmentDescriptor) parts.push(state.environmentDescriptor);
-    if (state.coordinates) parts.push(`Location Coordinates: ${state.coordinates}`);
-    // Technical
-    if (state.framing) parts.push(state.framing);
-    if (state.lens) parts.push(state.lens);
-    if (state.lensType) parts.push(state.lensType);
-    if (state.fStopIndex > 0) parts.push(OPTIONS.fStops[state.fStopIndex]);
-    if (state.lighting) parts.push(state.lighting);
-    if (state.colorGrading) parts.push(state.colorGrading);
+    let envStr = envParts.join(', ');
+    if (state.environmentDescriptor) envStr += (envStr ? ', ' : '') + state.environmentDescriptor;
+    if (state.coordinates) envStr += (envStr ? ', ' : '') + `Location Coordinates: ${state.coordinates}`;
+    if (envStr) {
+      if (state.useReferenceEnvironment) envStr += ' (use reference given)';
+      parts.push(envStr);
+    } else if (state.useReferenceEnvironment) {
+      parts.push('(use reference given)');
+    }
+
+    // Technical (End)
+    const techEndParts = [state.framing, state.lens, state.lensType, state.fStopIndex > 0 ? OPTIONS.fStops[state.fStopIndex] : '', state.lighting, state.colorGrading].filter(Boolean);
+    if (techEndParts.length > 0) {
+      let str = techEndParts.join(', ');
+      if (state.useReferenceTechnical) str += ' (use reference given)';
+      parts.push(str);
+    } else if (state.useReferenceTechnical) {
+      parts.push('(use reference given)');
+    }
     
     let compiled = parts.join(', ');
 
@@ -162,6 +212,7 @@ export default function App() {
         </header>
 
         <Accordion title="Technical Parameters" icon={Camera} colorClass="text-blue-400" isOpen={openSections.technical} onToggle={() => toggleSection('technical')}>
+          <ToggleSwitch label="Use Image Reference for Technical Parameters" checked={state.useReferenceTechnical} onChange={(v) => updateField('useReferenceTechnical', v)} />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 items-start">
             <Select label="Medium" value={state.medium} onChange={(v) => updateField('medium', v)} options={OPTIONS.medium} />
             <Select label="Framing" value={state.framing} onChange={(v) => updateField('framing', v)} options={OPTIONS.framing} />
@@ -175,6 +226,7 @@ export default function App() {
         </Accordion>
 
         <Accordion title="Main Subject Definition" icon={User} colorClass="text-pink-400" isOpen={openSections.subject} onToggle={() => toggleSection('subject')}>
+          <ToggleSwitch label="Use Image Reference for Main Subject" checked={state.useReferenceSubject} onChange={(v) => updateField('useReferenceSubject', v)} />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
             <Select label="Subject Type" value={state.subjectType} onChange={(v) => updateField('subjectType', v)} options={OPTIONS.subjectType} />
             <Select label="Lifestyle / Class" value={state.lifestyleClass} onChange={(v) => updateField('lifestyleClass', v)} options={OPTIONS.lifestyleClass} />
@@ -196,6 +248,7 @@ export default function App() {
         </Accordion>
 
         <Accordion title="Supporting Subject Definition" icon={Users} colorClass="text-purple-400" isOpen={openSections.supportingSubject} onToggle={() => toggleSection('supportingSubject')}>
+          <ToggleSwitch label="Use Image Reference for Supporting Subject" checked={state.useReferenceSupportingSubject} onChange={(v) => updateField('useReferenceSupportingSubject', v)} />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
             <Select label="Subject Type" value={state.supportingSubjectType} onChange={(v) => updateField('supportingSubjectType', v)} options={OPTIONS.subjectType} />
             <Select label="Lifestyle / Class" value={state.supportingLifestyleClass} onChange={(v) => updateField('supportingLifestyleClass', v)} options={OPTIONS.lifestyleClass} />
@@ -217,6 +270,7 @@ export default function App() {
         </Accordion>
 
         <Accordion title="Environment / Background" icon={ImageIcon} colorClass="text-emerald-400" isOpen={openSections.environment} onToggle={() => toggleSection('environment')}>
+          <ToggleSwitch label="Use Image Reference for Environment" checked={state.useReferenceEnvironment} onChange={(v) => updateField('useReferenceEnvironment', v)} />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
             <Select label="Location Type" value={state.locationType} onChange={(v) => updateField('locationType', v)} options={OPTIONS.locationType} />
             <Select label="Location Space" value={state.locationSpace} onChange={(v) => updateField('locationSpace', v)} options={OPTIONS.locationSpace} />
@@ -229,6 +283,7 @@ export default function App() {
         </Accordion>
 
         <Accordion title="Custom Overrides" icon={Wand2} colorClass="text-amber-400" isOpen={openSections.overrides} onToggle={() => toggleSection('overrides')}>
+          <ToggleSwitch label="Use Image Reference for Overrides" checked={state.useReferenceOverrides} onChange={(v) => updateField('useReferenceOverrides', v)} />
           <TextArea label="Core Action / Pose" value={state.coreAction} onChange={(v) => updateField('coreAction', v)} placeholder="e.g. sitting on a bench reading a futuristic glowing book..." />
           <TextArea label="Wardrobe" value={state.wardrobe} onChange={(v) => updateField('wardrobe', v)} placeholder="e.g. detailed cyberpunk jacket with neon accents..." />
           <TextArea label="Negative Prompt" value={state.negativePrompt} onChange={(v) => updateField('negativePrompt', v)} placeholder="e.g. ugly, deformed, blurry, low resolution..." />

@@ -226,6 +226,7 @@ export const OPTIONS = {
 
 export const DEFAULT_STATE = {
   // Technical
+  useReferenceTechnical: false,
   framing: "",
   lens: "",
   lensType: "",
@@ -235,6 +236,7 @@ export const DEFAULT_STATE = {
   colorGrading: "",
   aspectRatio: "",
   // Subject
+  useReferenceSubject: false,
   subjectType: "",
   gender: "",
   race: "",
@@ -252,6 +254,7 @@ export const DEFAULT_STATE = {
   clothingStyle: "",
   accessories: "",
   // Supporting Subject
+  useReferenceSupportingSubject: false,
   supportingSubjectType: "",
   supportingGender: "",
   supportingRace: "",
@@ -269,6 +272,7 @@ export const DEFAULT_STATE = {
   supportingClothingStyle: "",
   supportingAccessories: "",
   // Environment
+  useReferenceEnvironment: false,
   locationType: "",
   locationSpace: "",
   envLifestyleClass: "",
@@ -277,6 +281,7 @@ export const DEFAULT_STATE = {
   environmentDescriptor: "",
   coordinates: "",
   // Overrides
+  useReferenceOverrides: false,
   coreAction: "",
   wardrobe: "",
   negativePrompt: "",
