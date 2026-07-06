@@ -1,14 +1,31 @@
 export const OPTIONS = {
-  framing: [
-    "Extreme Close-up",
-    "Close-up",
-    "Medium Close-up",
-    "Medium Shot",
-    "Cowboy Shot",
-    "Medium Full Shot",
-    "Full Shot",
-    "Wide Shot",
-    "Extreme Wide Shot",
+  cameraShotSize: [
+    "Extreme Long Shot (ELS)",
+    "Long Shot (LS)",
+    "Extreme Wide Shot (EWS)",
+    "Wide Shot (WS)",
+    "Medium Long Shot (MLS) / Medium Wide Shot (MWS)",
+    "Cowboy Shot (CS)",
+    "Medium Shot (MS)",
+    "Medium Close-Up (MCU)",
+    "Close-Up (CU)",
+    "Extreme Close-Up (ECU)",
+  ],
+  multiSubjectFraming: [
+    "Single Shot",
+    "Two-Shot",
+    "Three-Shot",
+    "Over-the-Shoulder (OTS)",
+    "Point-of-View (POV)",
+  ],
+  cameraAngle: [
+    "Bird's-Eye View",
+    "Overhead Shot",
+    "Eye-Level Shot",
+    "Low Angle Shot",
+    "High Angle Shot",
+    "Dutch Tilt",
+    "Worm's-Eye View",
   ],
   lens: [
     "14mm Ultra Wide",
@@ -275,7 +292,9 @@ export const OPTIONS = {
 export const DEFAULT_STATE = {
   // Technical
   useReferenceTechnical: false,
-  framing: "",
+  cameraShotSize: "",
+  multiSubjectFraming: "",
+  cameraAngle: "",
   lens: "",
   lensType: "",
   fStopIndex: 0,

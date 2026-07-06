@@ -229,9 +229,11 @@ export default function App() {
 
     // Technical (End)
     const techEndParts = [
-      formatDropdown('Framing', state.framing),
-      formatDropdown('Lens', state.lens),
+      formatDropdown('Camera Shot Size', state.cameraShotSize),
+      formatDropdown('Multi-Subject Framing', state.multiSubjectFraming),
+      formatDropdown('Camera Angle', state.cameraAngle),
       formatDropdown('Lens Type', state.lensType),
+      formatDropdown('Lens', state.lens),
       state.fStopIndex > 0 ? formatDropdown('F-Stop', OPTIONS.fStops[state.fStopIndex]) : '',
       formatDropdown('Lighting', state.lighting),
       formatDropdown('Color Grading', state.colorGrading),
@@ -285,9 +287,11 @@ export default function App() {
           <ToggleSwitch label="Use Image Reference for Technical Parameters" checked={state.useReferenceTechnical} onChange={(v) => updateField('useReferenceTechnical', v)} />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 items-start">
             <Select label="Medium" value={state.medium} onChange={(v) => updateField('medium', v)} options={OPTIONS.medium} />
-            <Select label="Framing" value={state.framing} onChange={(v) => updateField('framing', v)} options={OPTIONS.framing} />
-            <Select label="Lens" value={state.lens} onChange={(v) => updateField('lens', v)} options={OPTIONS.lens} />
+            <Select label="Camera Shot Size" value={state.cameraShotSize} onChange={(v) => updateField('cameraShotSize', v)} options={OPTIONS.cameraShotSize} />
+            <Select label="Multi-Subject Framing" value={state.multiSubjectFraming} onChange={(v) => updateField('multiSubjectFraming', v)} options={OPTIONS.multiSubjectFraming} />
+            <Select label="Camera Angle" value={state.cameraAngle} onChange={(v) => updateField('cameraAngle', v)} options={OPTIONS.cameraAngle} />
             <Select label="Lens Type" value={state.lensType} onChange={(v) => updateField('lensType', v)} options={OPTIONS.lensType} />
+            <Select label="Lens" value={state.lens} onChange={(v) => updateField('lens', v)} options={OPTIONS.lens} />
             <FStopSlider label="F-Stop (Depth of Field)" value={state.fStopIndex} onChange={(v) => updateField('fStopIndex', v)} />
             <Select label="Lighting" value={state.lighting} onChange={(v) => updateField('lighting', v)} options={OPTIONS.lighting} />
             <Select label="Color Grading" value={state.colorGrading} onChange={(v) => updateField('colorGrading', v)} options={OPTIONS.colorGrading} />
