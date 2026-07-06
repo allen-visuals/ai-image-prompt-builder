@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import Wheel from '@uiw/react-color-wheel';
 import { hsvaToHex, hexToHsva } from '@uiw/color-convert';
-import { ChevronDown, ChevronUp, Copy, RefreshCw, Sparkles, Check, Settings2, Camera, User, Users, Image as ImageIcon, Wand2, Box } from 'lucide-react';
+import { ChevronDown, ChevronUp, Copy, RefreshCw, Check, Camera, User, Users, Image as ImageIcon, Wand2, Box } from 'lucide-react';
 import { OPTIONS, DEFAULT_STATE } from './constants';
 
 const Accordion = ({ title, icon: Icon, colorClass, isOpen, onToggle, children }) => (
@@ -112,7 +112,7 @@ const ColorPicker = ({ label, value, onChange }) => {
   let hsva = { h: 0, s: 0, v: 0, a: 1 };
   try {
     if (value) hsva = hexToHsva(value);
-  } catch (e) {
+  } catch {
     // If invalid hex, fallback to black
   }
 
