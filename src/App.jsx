@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import Wheel from '@uiw/react-color-wheel';
+import ShadeSlider from '@uiw/react-color-shade-slider';
 import { hsvaToHex, hexToHsva } from '@uiw/color-convert';
 import { ChevronDown, ChevronUp, Copy, RefreshCw, Check, Camera, User, Users, Image as ImageIcon, Wand2, Box } from 'lucide-react';
 import { OPTIONS, DEFAULT_STATE } from './constants';
@@ -109,11 +110,11 @@ const ToggleSwitch = ({ label, checked, onChange }) => (
 );
 
 const ColorPicker = ({ label, value, onChange }) => {
-  let hsva = { h: 0, s: 0, v: 0, a: 1 };
+  let hsva = { h: 0, s: 0, v: 100, a: 1 };
   try {
     if (value) hsva = hexToHsva(value);
   } catch {
-    // If invalid hex, fallback to black
+    // If invalid hex, fallback to white
   }
 
   return (
@@ -128,7 +129,18 @@ const ColorPicker = ({ label, value, onChange }) => {
       </div>
       
       <div className="w-full flex flex-col sm:flex-row items-center sm:items-center justify-around gap-6 py-2">
-        <div className="flex shrink-0 drop-shadow-lg">
+        <div className="flex items-center gap-4 drop-shadow-lg">
+          <div style={{ height: 140 }}>
+            <ShadeSlider
+              hsva={hsva}
+              direction="vertical"
+              style={{ width: 16, height: 140, borderRadius: 8 }}
+              onChange={(newShade) => {
+                const hex = hsvaToHex({ ...hsva, ...newShade });
+                onChange(hex);
+              }}
+            />
+          </div>
           <Wheel
             color={hsva}
             onChange={(color) => {
