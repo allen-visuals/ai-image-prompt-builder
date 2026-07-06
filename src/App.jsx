@@ -106,6 +106,36 @@ const ToggleSwitch = ({ label, checked, onChange }) => (
   </div>
 );
 
+const ColorPicker = ({ label, value, onChange }) => (
+  <div className="mb-4 col-span-1 bg-zinc-900/50 p-3 rounded-lg border border-zinc-800 flex flex-col justify-between">
+    <div className="flex justify-between items-center mb-2">
+      <label className="text-sm font-medium text-zinc-400">{label}</label>
+      {value && (
+        <button onClick={() => onChange('')} className="text-[10px] text-zinc-500 hover:text-zinc-300 uppercase tracking-wider">
+          Clear
+        </button>
+      )}
+    </div>
+    <div className="flex items-center gap-3">
+      <div className="relative w-8 h-8 rounded-full overflow-hidden border-2 border-zinc-700 shrink-0 shadow-inner">
+        <input
+          type="color"
+          value={value || '#000000'}
+          onChange={(e) => onChange(e.target.value)}
+          className="absolute -top-2 -left-2 w-12 h-12 cursor-pointer"
+        />
+      </div>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="#HEX"
+        className="bg-zinc-950 border border-zinc-800 text-zinc-100 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-neon-purple transition-all text-sm uppercase font-mono"
+      />
+    </div>
+  </div>
+);
+
 export default function App() {
   const [state, setState] = useState(DEFAULT_STATE);
   const [openSections, setOpenSections] = useState({ technical: true, subject: false, supportingSubject: false, object: false, environment: false, overrides: false });
@@ -237,6 +267,8 @@ export default function App() {
       state.fStopIndex > 0 ? formatDropdown('F-Stop', OPTIONS.fStops[state.fStopIndex]) : '',
       formatDropdown('Lighting', state.lighting),
       formatDropdown('Color Grading', state.colorGrading),
+      state.primaryBrandColor ? `Primary Brand Color is ${state.primaryBrandColor}` : '',
+      state.secondaryBrandColor ? `Secondary Brand Color is ${state.secondaryBrandColor}` : '',
       state.technicalCustom
     ].filter(Boolean);
     if (techEndParts.length > 0) {
@@ -296,6 +328,8 @@ export default function App() {
             <Select label="Lighting" value={state.lighting} onChange={(v) => updateField('lighting', v)} options={OPTIONS.lighting} />
             <Select label="Color Grading" value={state.colorGrading} onChange={(v) => updateField('colorGrading', v)} options={OPTIONS.colorGrading} />
             <Select label="Aspect Ratio" value={state.aspectRatio} onChange={(v) => updateField('aspectRatio', v)} options={OPTIONS.aspectRatio} />
+            <ColorPicker label="Primary Brand Color" value={state.primaryBrandColor} onChange={(v) => updateField('primaryBrandColor', v)} />
+            <ColorPicker label="Secondary Brand Color" value={state.secondaryBrandColor} onChange={(v) => updateField('secondaryBrandColor', v)} />
           </div>
           <TextArea label="Custom Technical Details" value={state.technicalCustom} onChange={(v) => updateField('technicalCustom', v)} placeholder="e.g. shot on anamorphic lens with heavy grain, specific camera models..." />
         </Accordion>

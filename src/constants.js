@@ -301,6 +301,8 @@ export const DEFAULT_STATE = {
   lighting: "",
   medium: "",
   colorGrading: "",
+  primaryBrandColor: "",
+  secondaryBrandColor: "",
   aspectRatio: "",
   technicalCustom: "",
   // Subject
