@@ -1,4 +1,6 @@
 import { useState, useMemo } from 'react';
+import Wheel from '@uiw/react-color-wheel';
+import { hsvaToHex, hexToHsva } from '@uiw/color-convert';
 import { ChevronDown, ChevronUp, Copy, RefreshCw, Sparkles, Check, Settings2, Camera, User, Users, Image as ImageIcon, Wand2, Box } from 'lucide-react';
 import { OPTIONS, DEFAULT_STATE } from './constants';
 
@@ -106,35 +108,55 @@ const ToggleSwitch = ({ label, checked, onChange }) => (
   </div>
 );
 
-const ColorPicker = ({ label, value, onChange }) => (
-  <div className="mb-4 col-span-1 bg-zinc-900/50 p-3 rounded-lg border border-zinc-800 flex flex-col justify-between">
-    <div className="flex justify-between items-center mb-2">
-      <label className="text-sm font-medium text-zinc-400">{label}</label>
-      {value && (
-        <button onClick={() => onChange('')} className="text-[10px] text-zinc-500 hover:text-zinc-300 uppercase tracking-wider">
-          Clear
-        </button>
-      )}
-    </div>
-    <div className="flex items-center gap-3">
-      <div className="relative w-8 h-8 rounded-full overflow-hidden border-2 border-zinc-700 shrink-0 shadow-inner">
-        <input
-          type="color"
-          value={value || '#000000'}
-          onChange={(e) => onChange(e.target.value)}
-          className="absolute -top-2 -left-2 w-12 h-12 cursor-pointer"
-        />
+const ColorPicker = ({ label, value, onChange }) => {
+  let hsva = { h: 0, s: 0, v: 0, a: 1 };
+  try {
+    if (value) hsva = hexToHsva(value);
+  } catch (e) {
+    // If invalid hex, fallback to black
+  }
+
+  return (
+    <div className="mb-4 bg-zinc-900/50 p-4 rounded-xl border border-zinc-800 flex flex-col items-center sm:items-start gap-4">
+      <div className="w-full flex justify-between items-center border-b border-zinc-800/50 pb-2">
+        <label className="text-sm font-semibold text-zinc-300 tracking-wide uppercase">{label}</label>
+        {value && (
+          <button onClick={() => onChange('')} className="text-xs text-zinc-500 hover:text-zinc-300 uppercase tracking-wider font-semibold transition-colors">
+            Clear
+          </button>
+        )}
       </div>
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="#HEX"
-        className="bg-zinc-950 border border-zinc-800 text-zinc-100 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-neon-purple transition-all text-sm uppercase font-mono"
-      />
+      
+      <div className="w-full flex flex-col sm:flex-row items-center sm:items-center justify-around gap-6 py-2">
+        <div className="flex shrink-0 drop-shadow-lg">
+          <Wheel
+            color={hsva}
+            onChange={(color) => {
+              const hex = hsvaToHex(color.hsva);
+              onChange(hex);
+            }}
+            width={140}
+            height={140}
+          />
+        </div>
+        
+        <div className="flex flex-col gap-3 w-full max-w-[200px]">
+          <label className="text-xs text-zinc-500 uppercase tracking-widest text-center sm:text-left hidden sm:block">Selected Color</label>
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-full shadow-inner border border-zinc-700 shrink-0" style={{ backgroundColor: value || 'transparent' }}></div>
+            <input
+              type="text"
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+              placeholder="#HEX"
+              className="bg-zinc-950 border border-zinc-800 text-zinc-100 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-neon-purple transition-all text-center uppercase font-mono tracking-widest"
+            />
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default function App() {
   const [state, setState] = useState(DEFAULT_STATE);
@@ -328,6 +350,8 @@ export default function App() {
             <Select label="Lighting" value={state.lighting} onChange={(v) => updateField('lighting', v)} options={OPTIONS.lighting} />
             <Select label="Color Grading" value={state.colorGrading} onChange={(v) => updateField('colorGrading', v)} options={OPTIONS.colorGrading} />
             <Select label="Aspect Ratio" value={state.aspectRatio} onChange={(v) => updateField('aspectRatio', v)} options={OPTIONS.aspectRatio} />
+          </div>
+          <div className="flex flex-col mt-2">
             <ColorPicker label="Primary Brand Color" value={state.primaryBrandColor} onChange={(v) => updateField('primaryBrandColor', v)} />
             <ColorPicker label="Secondary Brand Color" value={state.secondaryBrandColor} onChange={(v) => updateField('secondaryBrandColor', v)} />
           </div>
