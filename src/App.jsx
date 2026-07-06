@@ -117,16 +117,35 @@ export default function App() {
   const resetForm = () => setState(DEFAULT_STATE);
 
   const generatePrompt = useMemo(() => {
+    const formatDropdown = (label, value) => value ? `${label} is ${value}` : '';
+
     // Collect components in logical order
     const parts = [];
     
     // Medium
-    if (state.medium) parts.push(state.medium);
+    if (state.medium) parts.push(formatDropdown('Medium', state.medium));
     
     // Subject definition
-    const subjectParts = [state.gender, state.race, state.ethnicity, state.skinTone, state.skinAndHandTexture, state.age, state.build, state.hairTexture, state.hairStyle, state.hairColor, state.lifestyleClass, state.subjectType, state.expression, state.bodyPoseAndMovement, state.clothingStyle, state.accessories].filter(Boolean);
+    const subjectParts = [
+      formatDropdown('Gender', state.gender),
+      formatDropdown('Race', state.race),
+      formatDropdown('Ethnicity', state.ethnicity),
+      formatDropdown('Skin Tone', state.skinTone),
+      formatDropdown('Skin & Hand Texture', state.skinAndHandTexture),
+      formatDropdown('Age', state.age),
+      formatDropdown('Build', state.build),
+      formatDropdown('Hair Texture', state.hairTexture),
+      formatDropdown('Hair Style', state.hairStyle),
+      formatDropdown('Hair Color', state.hairColor),
+      formatDropdown('Lifestyle/Class', state.lifestyleClass),
+      formatDropdown('Subject Type', state.subjectType),
+      formatDropdown('Expression', state.expression),
+      formatDropdown('Body Pose & Movement', state.bodyPoseAndMovement),
+      state.clothingStyle,
+      state.accessories
+    ].filter(Boolean);
     if (subjectParts.length > 0) {
-      let str = subjectParts.join(' ');
+      let str = subjectParts.join(', ');
       if (state.useReferenceSubject) str += ' (use reference given)';
       parts.push(str);
     } else if (state.useReferenceSubject) {
@@ -134,9 +153,26 @@ export default function App() {
     }
 
     // Supporting Subject definition
-    const supportingSubjectParts = [state.supportingGender, state.supportingRace, state.supportingEthnicity, state.supportingSkinTone, state.supportingSkinAndHandTexture, state.supportingAge, state.supportingBuild, state.supportingHairTexture, state.supportingHairStyle, state.supportingHairColor, state.supportingLifestyleClass, state.supportingSubjectType, state.supportingExpression, state.supportingBodyPoseAndMovement, state.supportingClothingStyle, state.supportingAccessories].filter(Boolean);
+    const supportingSubjectParts = [
+      formatDropdown('Gender', state.supportingGender),
+      formatDropdown('Race', state.supportingRace),
+      formatDropdown('Ethnicity', state.supportingEthnicity),
+      formatDropdown('Skin Tone', state.supportingSkinTone),
+      formatDropdown('Skin & Hand Texture', state.supportingSkinAndHandTexture),
+      formatDropdown('Age', state.supportingAge),
+      formatDropdown('Build', state.supportingBuild),
+      formatDropdown('Hair Texture', state.supportingHairTexture),
+      formatDropdown('Hair Style', state.supportingHairStyle),
+      formatDropdown('Hair Color', state.supportingHairColor),
+      formatDropdown('Lifestyle/Class', state.supportingLifestyleClass),
+      formatDropdown('Subject Type', state.supportingSubjectType),
+      formatDropdown('Expression', state.supportingExpression),
+      formatDropdown('Body Pose & Movement', state.supportingBodyPoseAndMovement),
+      state.supportingClothingStyle,
+      state.supportingAccessories
+    ].filter(Boolean);
     if (supportingSubjectParts.length > 0) {
-      let str = `accompanied by a ${supportingSubjectParts.join(' ')}`;
+      let str = `accompanied by: ${supportingSubjectParts.join(', ')}`;
       if (state.useReferenceSupportingSubject) str += ' (use reference given)';
       parts.push(str);
     } else if (state.useReferenceSupportingSubject) {
@@ -154,7 +190,13 @@ export default function App() {
     }
 
     // Environment/Background
-    const envParts = [state.locationType, state.envLifestyleClass, state.locationSpace, state.exactLocation, state.timeOfDay].filter(Boolean);
+    const envParts = [
+      formatDropdown('Location Type', state.locationType),
+      formatDropdown('Environment Lifestyle/Class', state.envLifestyleClass),
+      formatDropdown('Location Space', state.locationSpace),
+      state.exactLocation,
+      formatDropdown('Time of Day', state.timeOfDay)
+    ].filter(Boolean);
     let envStr = envParts.join(', ');
     if (state.environmentDescriptor) envStr += (envStr ? ', ' : '') + state.environmentDescriptor;
     if (state.coordinates) envStr += (envStr ? ', ' : '') + `Location Coordinates: ${state.coordinates}`;
@@ -166,7 +208,14 @@ export default function App() {
     }
 
     // Technical (End)
-    const techEndParts = [state.framing, state.lens, state.lensType, state.fStopIndex > 0 ? OPTIONS.fStops[state.fStopIndex] : '', state.lighting, state.colorGrading].filter(Boolean);
+    const techEndParts = [
+      formatDropdown('Framing', state.framing),
+      formatDropdown('Lens', state.lens),
+      formatDropdown('Lens Type', state.lensType),
+      state.fStopIndex > 0 ? formatDropdown('F-Stop', OPTIONS.fStops[state.fStopIndex]) : '',
+      formatDropdown('Lighting', state.lighting),
+      formatDropdown('Color Grading', state.colorGrading)
+    ].filter(Boolean);
     if (techEndParts.length > 0) {
       let str = techEndParts.join(', ');
       if (state.useReferenceTechnical) str += ' (use reference given)';
