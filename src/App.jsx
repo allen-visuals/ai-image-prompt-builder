@@ -1,6 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import Wheel from '@uiw/react-color-wheel';
-import ShadeSlider from '@uiw/react-color-shade-slider';
 import { hsvaToHex, hexToHsva } from '@uiw/color-convert';
 import { ChevronDown, ChevronUp, Copy, RefreshCw, Check, Camera, User, Users, Image as ImageIcon, Wand2, Box } from 'lucide-react';
 import { OPTIONS, DEFAULT_STATE } from './constants';
@@ -109,13 +108,68 @@ const ToggleSwitch = ({ label, checked, onChange }) => (
   </div>
 );
 
+const LightnessSlider = ({ hsva, onChange }) => {
+  const containerRef = useRef(null);
+
+  const handleDrag = (clientY) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    let y = clientY - rect.top;
+    if (y < 0) y = 0;
+    if (y > rect.height) y = rect.height;
+    const v = Math.round(100 - (y / rect.height) * 100);
+    onChange({ ...hsva, v });
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      className="relative rounded-full cursor-ns-resize shadow-inner border border-zinc-700"
+      style={{
+        width: 14,
+        height: 140,
+        background: `linear-gradient(to bottom, ${hsvaToHex({ ...hsva, v: 100 })}, #000000)`,
+      }}
+      onMouseDown={(e) => {
+        handleDrag(e.clientY);
+        const handleGlobalMouseMove = (eMove) => handleDrag(eMove.clientY);
+        const handleGlobalMouseUp = () => {
+          window.removeEventListener('mousemove', handleGlobalMouseMove);
+          window.removeEventListener('mouseup', handleGlobalMouseUp);
+        };
+        window.addEventListener('mousemove', handleGlobalMouseMove);
+        window.addEventListener('mouseup', handleGlobalMouseUp);
+      }}
+    >
+      <div
+        className="absolute w-5 h-5 bg-zinc-200 rounded-full border-2 border-zinc-800 shadow-md pointer-events-none transition-none"
+        style={{ left: -3, top: `calc(${100 - hsva.v}% - 10px)` }}
+      />
+    </div>
+  );
+};
+
 const ColorPicker = ({ label, value, onChange }) => {
-  let hsva = { h: 0, s: 0, v: 100, a: 1 };
-  try {
-    if (value) hsva = hexToHsva(value);
-  } catch {
-    // If invalid hex, fallback to white
-  }
+  const [internalHsva, setInternalHsva] = useState({ h: 0, s: 0, v: 100, a: 1 });
+
+  useMemo(() => {
+    if (value) {
+      try {
+        const extHsva = hexToHsva(value);
+        const intHex = hsvaToHex(internalHsva);
+        if (value.toLowerCase() !== intHex.toLowerCase()) {
+          setInternalHsva(extHsva);
+        }
+      } catch { }
+    } else {
+      setInternalHsva({ h: 0, s: 0, v: 100, a: 1 });
+    }
+  }, [value]);
+
+  const updateColor = (newHsva) => {
+    setInternalHsva(newHsva);
+    onChange(hsvaToHex(newHsva));
+  };
 
   return (
     <div className="mb-4 bg-zinc-900/50 p-4 rounded-xl border border-zinc-800 flex flex-col items-center sm:items-start gap-4">
@@ -129,24 +183,11 @@ const ColorPicker = ({ label, value, onChange }) => {
       </div>
       
       <div className="w-full flex flex-col sm:flex-row items-center sm:items-center justify-around gap-6 py-2">
-        <div className="flex items-center gap-4 drop-shadow-lg">
-          <div style={{ height: 140 }}>
-            <ShadeSlider
-              hsva={hsva}
-              direction="vertical"
-              style={{ width: 16, height: 140, borderRadius: 8 }}
-              onChange={(newShade) => {
-                const hex = hsvaToHex({ ...hsva, ...newShade });
-                onChange(hex);
-              }}
-            />
-          </div>
+        <div className="flex items-center gap-6 drop-shadow-lg">
+          <LightnessSlider hsva={internalHsva} onChange={updateColor} />
           <Wheel
-            color={hsva}
-            onChange={(color) => {
-              const hex = hsvaToHex(color.hsva);
-              onChange(hex);
-            }}
+            color={internalHsva}
+            onChange={(color) => updateColor({ ...internalHsva, h: color.hsva.h, s: color.hsva.s })}
             width={140}
             height={140}
           />
@@ -159,7 +200,12 @@ const ColorPicker = ({ label, value, onChange }) => {
             <input
               type="text"
               value={value}
-              onChange={(e) => onChange(e.target.value)}
+              onChange={(e) => {
+                onChange(e.target.value);
+                try {
+                  setInternalHsva(hexToHsva(e.target.value));
+                } catch {}
+              }}
               placeholder="#HEX"
               className="bg-zinc-950 border border-zinc-800 text-zinc-100 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-neon-purple transition-all text-center uppercase font-mono tracking-widest"
             />
