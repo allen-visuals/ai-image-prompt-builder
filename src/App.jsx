@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { ChevronDown, ChevronUp, Copy, RefreshCw, Sparkles, Check, Settings2, Camera, User, Users, Image as ImageIcon, Wand2 } from 'lucide-react';
+import { ChevronDown, ChevronUp, Copy, RefreshCw, Sparkles, Check, Settings2, Camera, User, Users, Image as ImageIcon, Wand2, Box } from 'lucide-react';
 import { OPTIONS, DEFAULT_STATE } from './constants';
 
 const Accordion = ({ title, icon: Icon, colorClass, isOpen, onToggle, children }) => (
@@ -108,7 +108,7 @@ const ToggleSwitch = ({ label, checked, onChange }) => (
 
 export default function App() {
   const [state, setState] = useState(DEFAULT_STATE);
-  const [openSections, setOpenSections] = useState({ technical: true, subject: false, supportingSubject: false, environment: false, overrides: false });
+  const [openSections, setOpenSections] = useState({ technical: true, subject: false, supportingSubject: false, object: false, environment: false, overrides: false });
   const [flavor, setFlavor] = useState('standard');
   const [copied, setCopied] = useState(false);
 
@@ -142,7 +142,8 @@ export default function App() {
       formatDropdown('Expression', state.expression),
       formatDropdown('Body Pose & Movement', state.bodyPoseAndMovement),
       state.clothingStyle,
-      state.accessories
+      state.accessories,
+      state.subjectCustom
     ].filter(Boolean);
     if (subjectParts.length > 0) {
       let str = subjectParts.join(', ');
@@ -169,13 +170,32 @@ export default function App() {
       formatDropdown('Expression', state.supportingExpression),
       formatDropdown('Body Pose & Movement', state.supportingBodyPoseAndMovement),
       state.supportingClothingStyle,
-      state.supportingAccessories
+      state.supportingAccessories,
+      state.supportingSubjectCustom
     ].filter(Boolean);
     if (supportingSubjectParts.length > 0) {
       let str = `accompanied by: ${supportingSubjectParts.join(', ')}`;
       if (state.useReferenceSupportingSubject) str += ' (use reference given)';
       parts.push(str);
     } else if (state.useReferenceSupportingSubject) {
+      parts.push('(use reference given)');
+    }
+
+    // Object / Product Subject definition
+    const objectParts = [
+      formatDropdown('Object Type', state.objectType),
+      formatDropdown('Material', state.objectMaterial),
+      formatDropdown('Condition', state.objectCondition),
+      state.objectPrimaryColor ? `Primary Color is ${state.objectPrimaryColor}` : '',
+      formatDropdown('Placement', state.objectPlacement),
+      formatDropdown('Scale', state.objectScale),
+      state.objectCustom
+    ].filter(Boolean);
+    if (objectParts.length > 0) {
+      let str = `object subject: ${objectParts.join(', ')}`;
+      if (state.useReferenceObject) str += ' (use reference given)';
+      parts.push(str);
+    } else if (state.useReferenceObject) {
       parts.push('(use reference given)');
     }
 
@@ -214,7 +234,8 @@ export default function App() {
       formatDropdown('Lens Type', state.lensType),
       state.fStopIndex > 0 ? formatDropdown('F-Stop', OPTIONS.fStops[state.fStopIndex]) : '',
       formatDropdown('Lighting', state.lighting),
-      formatDropdown('Color Grading', state.colorGrading)
+      formatDropdown('Color Grading', state.colorGrading),
+      state.technicalCustom
     ].filter(Boolean);
     if (techEndParts.length > 0) {
       let str = techEndParts.join(', ');
@@ -272,6 +293,7 @@ export default function App() {
             <Select label="Color Grading" value={state.colorGrading} onChange={(v) => updateField('colorGrading', v)} options={OPTIONS.colorGrading} />
             <Select label="Aspect Ratio" value={state.aspectRatio} onChange={(v) => updateField('aspectRatio', v)} options={OPTIONS.aspectRatio} />
           </div>
+          <TextArea label="Custom Technical Details" value={state.technicalCustom} onChange={(v) => updateField('technicalCustom', v)} placeholder="e.g. shot on anamorphic lens with heavy grain, specific camera models..." />
         </Accordion>
 
         <Accordion title="Main Subject Definition" icon={User} colorClass="text-pink-400" isOpen={openSections.subject} onToggle={() => toggleSection('subject')}>
@@ -294,6 +316,7 @@ export default function App() {
           </div>
           <TextInput label="Clothing Style" value={state.clothingStyle} onChange={(v) => updateField('clothingStyle', v)} placeholder="e.g. detailed cyberpunk jacket with neon accents" />
           <TextInput label="Accessories" value={state.accessories} onChange={(v) => updateField('accessories', v)} placeholder="e.g. cybernetic sunglasses, gold chain" />
+          <TextArea label="Custom Subject Details" value={state.subjectCustom} onChange={(v) => updateField('subjectCustom', v)} placeholder="e.g. detailed scars on face, specific glowing tattoos..." />
         </Accordion>
 
         <Accordion title="Supporting Subject Definition" icon={Users} colorClass="text-purple-400" isOpen={openSections.supportingSubject} onToggle={() => toggleSection('supportingSubject')}>
@@ -316,6 +339,20 @@ export default function App() {
           </div>
           <TextInput label="Clothing Style" value={state.supportingClothingStyle} onChange={(v) => updateField('supportingClothingStyle', v)} placeholder="e.g. casual streetwear" />
           <TextInput label="Accessories" value={state.supportingAccessories} onChange={(v) => updateField('supportingAccessories', v)} placeholder="e.g. silver necklace, watch" />
+          <TextArea label="Custom Supporting Subject Details" value={state.supportingSubjectCustom} onChange={(v) => updateField('supportingSubjectCustom', v)} placeholder="e.g. hovering drone companion, specific details..." />
+        </Accordion>
+
+        <Accordion title="Object / Product Definition" icon={Box} colorClass="text-orange-400" isOpen={openSections.object} onToggle={() => toggleSection('object')}>
+          <ToggleSwitch label="Use Image Reference for Object/Product" checked={state.useReferenceObject} onChange={(v) => updateField('useReferenceObject', v)} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
+            <Select label="Object Type" value={state.objectType} onChange={(v) => updateField('objectType', v)} options={OPTIONS.objectType} />
+            <Select label="Material / Texture" value={state.objectMaterial} onChange={(v) => updateField('objectMaterial', v)} options={OPTIONS.objectMaterial} />
+            <Select label="Condition / State" value={state.objectCondition} onChange={(v) => updateField('objectCondition', v)} options={OPTIONS.objectCondition} />
+            <Select label="Placement / Display Style" value={state.objectPlacement} onChange={(v) => updateField('objectPlacement', v)} options={OPTIONS.objectPlacement} />
+            <Select label="Scale / Size" value={state.objectScale} onChange={(v) => updateField('objectScale', v)} options={OPTIONS.objectScale} />
+          </div>
+          <TextInput label="Primary Color" value={state.objectPrimaryColor} onChange={(v) => updateField('objectPrimaryColor', v)} placeholder="e.g. Neon Green, Matte Black with Gold accents" />
+          <TextArea label="Custom Object Details" value={state.objectCustom} onChange={(v) => updateField('objectCustom', v)} placeholder="e.g. glowing circuitry, specific brand markings, reflective surfaces..." />
         </Accordion>
 
         <Accordion title="Environment / Background" icon={ImageIcon} colorClass="text-emerald-400" isOpen={openSections.environment} onToggle={() => toggleSection('environment')}>
