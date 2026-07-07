@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import Wheel from '@uiw/react-color-wheel';
 import { hsvaToHex, hexToHsva } from '@uiw/color-convert';
-import { ChevronDown, ChevronUp, Copy, RefreshCw, Check, Camera, User, Users, Image as ImageIcon, Wand2, Box, Lock } from 'lucide-react';
+import { ChevronDown, ChevronUp, Copy, RefreshCw, Check, Camera, User, Users, Image as ImageIcon, Wand2, Box, Lock, LogOut } from 'lucide-react';
 import { OPTIONS, DEFAULT_STATE } from './constants';
 
 const Accordion = ({ title, icon: Icon, colorClass, isOpen, onToggle, children }) => (
@@ -216,7 +216,7 @@ const ColorPicker = ({ label, value, onChange }) => {
   );
 };
 
-function MainApp() {
+function MainApp({ onLogout }) {
   const [state, setState] = useState(DEFAULT_STATE);
   const [openSections, setOpenSections] = useState({ technical: true, subject: false, supportingSubject: false, object: false, environment: false, overrides: false });
   const [flavor, setFlavor] = useState('standard');
@@ -390,9 +390,18 @@ function MainApp() {
       
       {/* LEFT PANEL - Form */}
       <div className="w-full md:w-1/2 lg:w-5/12 flex-1 overflow-y-auto border-r border-zinc-800 p-4 md:p-6 xl:p-10 custom-scrollbar">
-        <header className="mb-6 md:mb-8 flex flex-col items-start">
-          <img src="/logo.png" alt="AI Image Prompt Builder by allenvisuals" className="w-48 sm:w-full max-w-xs sm:max-w-md h-auto" />
-          <p className="text-sm md:text-base text-zinc-400 mt-2 md:mt-4">Craft precise AI image generations.</p>
+        <header className="mb-6 md:mb-8 flex justify-between items-start w-full">
+          <div className="flex flex-col items-start">
+            <img src="/logo.png" alt="AI Image Prompt Builder by allenvisuals" className="w-48 sm:w-full max-w-xs sm:max-w-md h-auto" />
+            <p className="text-sm md:text-base text-zinc-400 mt-2 md:mt-4">Craft precise AI image generations.</p>
+          </div>
+          <button
+            onClick={onLogout}
+            className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors uppercase tracking-wider font-semibold bg-zinc-900 hover:bg-zinc-800 px-3 py-2 rounded-lg border border-zinc-800/80 shadow-sm"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            Logout
+          </button>
         </header>
 
         <Accordion title="Technical Parameters" icon={Camera} colorClass="text-blue-400" isOpen={openSections.technical} onToggle={() => toggleSection('technical')}>
@@ -586,6 +595,12 @@ export default function App() {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('av_auth');
+    setIsAuthenticated(false);
+    setPassword('');
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="h-screen w-full bg-zinc-950 flex items-center justify-center p-4 font-sans">
@@ -620,5 +635,5 @@ export default function App() {
     );
   }
 
-  return <MainApp />;
+  return <MainApp onLogout={handleLogout} />;
 }
