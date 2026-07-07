@@ -577,7 +577,7 @@ export default function App() {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    if (password === 'allenvisuals') {
+    if (password === 'Av!Pr0mpt$2026') {
       localStorage.setItem('av_auth', 'true');
       setIsAuthenticated(true);
     } else {
