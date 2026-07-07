@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import Wheel from '@uiw/react-color-wheel';
 import { hsvaToHex, hexToHsva } from '@uiw/color-convert';
-import { ChevronDown, ChevronUp, Copy, RefreshCw, Check, Camera, User, Users, Image as ImageIcon, Wand2, Box } from 'lucide-react';
+import { ChevronDown, ChevronUp, Copy, RefreshCw, Check, Camera, User, Users, Image as ImageIcon, Wand2, Box, Lock } from 'lucide-react';
 import { OPTIONS, DEFAULT_STATE } from './constants';
 
 const Accordion = ({ title, icon: Icon, colorClass, isOpen, onToggle, children }) => (
@@ -216,7 +216,7 @@ const ColorPicker = ({ label, value, onChange }) => {
   );
 };
 
-export default function App() {
+function MainApp() {
   const [state, setState] = useState(DEFAULT_STATE);
   const [openSections, setOpenSections] = useState({ technical: true, subject: false, supportingSubject: false, object: false, environment: false, overrides: false });
   const [flavor, setFlavor] = useState('standard');
@@ -568,4 +568,57 @@ export default function App() {
       </div>
     </div>
   );
+}
+
+export default function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(localStorage.getItem('av_auth') === 'true');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState(false);
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (password === 'allenvisuals') {
+      localStorage.setItem('av_auth', 'true');
+      setIsAuthenticated(true);
+    } else {
+      setError(true);
+      setTimeout(() => setError(false), 2000);
+    }
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="h-screen w-full bg-zinc-950 flex items-center justify-center p-4 font-sans">
+        <div className="w-full max-w-md bg-zinc-900/80 border border-zinc-800 rounded-2xl p-8 sm:p-10 shadow-2xl flex flex-col items-center">
+          <div className="w-16 h-16 bg-zinc-950 border border-zinc-800 rounded-full flex items-center justify-center mb-6 shadow-inner">
+            <Lock className="w-6 h-6 text-zinc-500" />
+          </div>
+          <img src="/logo.png" alt="Allen Visuals" className="w-48 sm:w-56 mb-6 opacity-90" />
+          <p className="text-zinc-500 text-sm mb-8 text-center">Please enter the password to access the AI Image Prompt Builder.</p>
+          
+          <form onSubmit={handleLogin} className="w-full flex flex-col gap-4">
+            <div>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Password"
+                autoFocus
+                className={`w-full bg-zinc-950 border ${error ? 'border-red-500/50' : 'border-zinc-800'} text-zinc-100 rounded-xl p-3 focus:outline-none focus:ring-2 ${error ? 'focus:ring-red-500/50' : 'focus:ring-neon-purple'} transition-all text-center tracking-widest placeholder:tracking-normal placeholder:text-zinc-600`}
+              />
+              {error && <p className="text-red-400 text-xs text-center mt-3 font-medium tracking-wide">Incorrect password</p>}
+            </div>
+            <button
+              type="submit"
+              className="w-full bg-zinc-100 hover:bg-white text-zinc-900 font-bold tracking-wider uppercase rounded-xl p-3.5 transition-colors mt-2"
+            >
+              Enter
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  return <MainApp />;
 }
