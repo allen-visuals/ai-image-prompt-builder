@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import Wheel from '@uiw/react-color-wheel';
 import { hsvaToHex, hexToHsva } from '@uiw/color-convert';
-import { ChevronDown, ChevronUp, Copy, RefreshCw, Check, Camera, User, Users, Image as ImageIcon, Wand2, Box, Lock, LogOut, Save, Bookmark, Trash2, Download, Sun } from 'lucide-react';
+import { ChevronDown, ChevronUp, Copy, RefreshCw, Check, Camera, User, Users, Image as ImageIcon, Wand2, Box, Lock, LogOut, Save, Bookmark, Trash2, Download, Sun, Upload } from 'lucide-react';
 import { OPTIONS, DEFAULT_STATE } from './constants';
 
 const Accordion = ({ title, icon: Icon, colorClass, isOpen, onToggle, children }) => (
@@ -227,6 +227,7 @@ function MainApp({ onLogout }) {
   });
   const [promptNameInput, setPromptNameInput] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const fileInputRef = useRef(null);
 
   const toggleSection = (sec) => setOpenSections((prev) => ({ ...prev, [sec]: !prev[sec] }));
   const updateField = (field, value) => setState((prev) => ({ ...prev, [field]: value }));
@@ -257,6 +258,38 @@ function MainApp({ onLogout }) {
     const updatedPrompts = savedPrompts.filter(p => p.id !== id);
     setSavedPrompts(updatedPrompts);
     localStorage.setItem('av_saved_prompts', JSON.stringify(updatedPrompts));
+  };
+
+  const handleExportPrompt = () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ state, flavor }, null, 2));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", `av-prompt-preset-${Date.now()}.json`);
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+  };
+
+  const handleImportPrompt = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const imported = JSON.parse(event.target.result);
+        if (imported.state) {
+          setState({ ...DEFAULT_STATE, ...imported.state });
+          if (imported.flavor) setFlavor(imported.flavor);
+          alert('Preset imported successfully!');
+        } else {
+          alert('Invalid preset file format.');
+        }
+      } catch (err) {
+        alert('Failed to parse JSON file.');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
   };
 
   const generatePrompt = useMemo(() => {
@@ -677,13 +710,33 @@ function MainApp({ onLogout }) {
               </div>
             </div>
           ) : (
-            <button 
-              onClick={() => setIsSaving(true)}
-              className="w-full py-3 rounded-xl flex items-center justify-center gap-2 md:gap-3 font-semibold text-sm bg-zinc-900 border border-zinc-700 hover:bg-zinc-800 text-zinc-300 transition-colors"
-            >
-              <Save className="w-5 h-5" />
-              Save Prompt Preset
-            </button>
+            <div className="flex flex-col gap-3">
+              <button 
+                onClick={() => setIsSaving(true)}
+                className="w-full py-3 rounded-xl flex items-center justify-center gap-2 md:gap-3 font-semibold text-sm bg-zinc-900 border border-zinc-700 hover:bg-zinc-800 text-zinc-300 transition-colors"
+              >
+                <Save className="w-5 h-5" />
+                Save Prompt Preset
+              </button>
+              
+              <div className="flex gap-3">
+                <button 
+                  onClick={handleExportPrompt}
+                  className="flex-1 py-3 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm bg-zinc-900 border border-zinc-700 hover:bg-zinc-800 text-zinc-300 transition-colors"
+                >
+                  <Download className="w-4 h-4" />
+                  Export JSON
+                </button>
+                <button 
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex-1 py-3 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm bg-zinc-900 border border-zinc-700 hover:bg-zinc-800 text-zinc-300 transition-colors"
+                >
+                  <Upload className="w-4 h-4" />
+                  Import JSON
+                </button>
+                <input type="file" accept=".json" className="hidden" ref={fileInputRef} onChange={handleImportPrompt} />
+              </div>
+            </div>
           )}
         </div>
 
