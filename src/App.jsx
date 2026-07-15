@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import Wheel from '@uiw/react-color-wheel';
 import { hsvaToHex, hexToHsva } from '@uiw/color-convert';
-import { ChevronDown, ChevronUp, Copy, RefreshCw, Check, Camera, User, Users, Image as ImageIcon, Wand2, Box, Lock, LogOut } from 'lucide-react';
+import { ChevronDown, ChevronUp, Copy, RefreshCw, Check, Camera, User, Users, Image as ImageIcon, Wand2, Box, Lock, LogOut, Save, Bookmark, Trash2, Download } from 'lucide-react';
 import { OPTIONS, DEFAULT_STATE } from './constants';
 
 const Accordion = ({ title, icon: Icon, colorClass, isOpen, onToggle, children }) => (
@@ -218,13 +218,46 @@ const ColorPicker = ({ label, value, onChange }) => {
 
 function MainApp({ onLogout }) {
   const [state, setState] = useState(DEFAULT_STATE);
-  const [openSections, setOpenSections] = useState({ technical: true, subject: false, supportingSubject: false, object: false, environment: false, overrides: false });
+  const [openSections, setOpenSections] = useState({ savedPrompts: false, technical: true, subject: false, supportingSubject: false, object: false, environment: false, overrides: false });
   const [flavor, setFlavor] = useState('standard');
   const [copied, setCopied] = useState(false);
+  const [savedPrompts, setSavedPrompts] = useState(() => {
+    const saved = localStorage.getItem('av_saved_prompts');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [promptNameInput, setPromptNameInput] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   const toggleSection = (sec) => setOpenSections((prev) => ({ ...prev, [sec]: !prev[sec] }));
   const updateField = (field, value) => setState((prev) => ({ ...prev, [field]: value }));
   const resetForm = () => setState(DEFAULT_STATE);
+
+  const handleSavePrompt = () => {
+    if (!promptNameInput.trim()) return;
+    const newPrompt = {
+      id: Date.now().toString(),
+      name: promptNameInput.trim(),
+      timestamp: new Date().toLocaleDateString(),
+      state: state,
+      flavor: flavor
+    };
+    const updatedPrompts = [...savedPrompts, newPrompt];
+    setSavedPrompts(updatedPrompts);
+    localStorage.setItem('av_saved_prompts', JSON.stringify(updatedPrompts));
+    setPromptNameInput('');
+    setIsSaving(false);
+  };
+
+  const loadPrompt = (prompt) => {
+    setState(prompt.state);
+    setFlavor(prompt.flavor);
+  };
+
+  const deletePrompt = (id) => {
+    const updatedPrompts = savedPrompts.filter(p => p.id !== id);
+    setSavedPrompts(updatedPrompts);
+    localStorage.setItem('av_saved_prompts', JSON.stringify(updatedPrompts));
+  };
 
   const generatePrompt = useMemo(() => {
     const formatDropdown = (label, value) => value ? `${label} is ${value}` : '';
@@ -404,6 +437,31 @@ function MainApp({ onLogout }) {
           </button>
         </header>
 
+        <Accordion title="Saved Prompts" icon={Bookmark} colorClass="text-yellow-400" isOpen={openSections.savedPrompts} onToggle={() => toggleSection('savedPrompts')}>
+          {savedPrompts.length === 0 ? (
+            <p className="text-zinc-500 text-sm italic text-center py-4">No saved prompts yet. Save one from the right panel!</p>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {savedPrompts.map(prompt => (
+                <div key={prompt.id} className="bg-zinc-950 border border-zinc-800 p-3 rounded-lg flex justify-between items-center group">
+                  <div className="flex flex-col overflow-hidden mr-2">
+                    <span className="text-sm font-semibold text-zinc-200 truncate">{prompt.name}</span>
+                    <span className="text-[10px] text-zinc-500">{prompt.timestamp} • {prompt.flavor}</span>
+                  </div>
+                  <div className="flex gap-2 shrink-0">
+                    <button onClick={() => loadPrompt(prompt)} className="bg-neon-purple/20 text-neon-purple p-1.5 rounded-md hover:bg-neon-purple/40 transition-colors" title="Load">
+                      <Download className="w-4 h-4" />
+                    </button>
+                    <button onClick={() => deletePrompt(prompt.id)} className="bg-red-500/10 text-red-400 p-1.5 rounded-md hover:bg-red-500/30 transition-colors" title="Delete">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </Accordion>
+
         <Accordion title="Technical Parameters" icon={Camera} colorClass="text-blue-400" isOpen={openSections.technical} onToggle={() => toggleSection('technical')}>
           <ToggleSwitch label="Use Image Reference for Technical Parameters" checked={state.useReferenceTechnical} onChange={(v) => updateField('useReferenceTechnical', v)} />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 items-start">
@@ -551,7 +609,7 @@ function MainApp({ onLogout }) {
           )}
         </div>
 
-        <div className="mt-4 md:mt-8">
+        <div className="mt-4 md:mt-8 flex flex-col gap-3">
           <button 
             onClick={handleCopy}
             className={`w-full py-3 md:py-4 rounded-xl flex items-center justify-center gap-2 md:gap-3 font-semibold text-sm md:text-lg transition-all duration-300 ${
@@ -572,6 +630,36 @@ function MainApp({ onLogout }) {
               </>
             )}
           </button>
+
+          {isSaving ? (
+            <div className="flex flex-col sm:flex-row items-center gap-2 bg-zinc-900 border border-zinc-700 rounded-xl p-2 w-full transition-all">
+              <input 
+                type="text" 
+                value={promptNameInput}
+                onChange={(e) => setPromptNameInput(e.target.value)}
+                placeholder="Enter prompt name..."
+                className="bg-zinc-950 border border-zinc-800 text-zinc-100 rounded-lg p-2.5 w-full focus:outline-none focus:border-neon-purple text-sm"
+                autoFocus
+                onKeyDown={(e) => e.key === 'Enter' && handleSavePrompt()}
+              />
+              <div className="flex w-full sm:w-auto gap-2">
+                <button onClick={handleSavePrompt} className="flex-1 sm:flex-none bg-neon-purple text-white px-4 py-2.5 rounded-lg font-semibold text-sm hover:bg-purple-600 transition-colors">
+                  Save
+                </button>
+                <button onClick={() => setIsSaving(false)} className="flex-1 sm:flex-none text-zinc-400 hover:text-zinc-200 bg-zinc-800 hover:bg-zinc-700 px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors">
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button 
+              onClick={() => setIsSaving(true)}
+              className="w-full py-3 rounded-xl flex items-center justify-center gap-2 md:gap-3 font-semibold text-sm bg-zinc-900 border border-zinc-700 hover:bg-zinc-800 text-zinc-300 transition-colors"
+            >
+              <Save className="w-5 h-5" />
+              Save Prompt Preset
+            </button>
+          )}
         </div>
 
       </div>
