@@ -50,10 +50,9 @@ export const OPTIONS = {
   fStops: [
     "None", "f/1.2", "f/1.4", "f/1.8", "f/2", "f/2.8", "f/4", "f/5.6", "f/8", "f/11", "f/16", "f/22"
   ],
-  lighting: [
+  globalLightingSetup: [
     "Studio / Commercial",
     "Cinematic",
-    "Cinematic Backlit",
     "High Key",
     "Low Key",
     "Boxing Ring",
@@ -64,6 +63,29 @@ export const OPTIONS = {
     "Neon Lighting",
     "Harsh Sunlight",
     "Overcast Flat Light",
+  ],
+  lightQuality: [
+    "Hard Light",
+    "Soft / Diffused Light",
+    "Specular",
+    "Motivated",
+  ],
+  subjectLighting: [
+    "Flat Lighting",
+    "Rembrandt Lighting",
+    "Split Lighting",
+    "Butterfly / Paramount",
+    "Backlit / Silhouette",
+    "Edge / Rim Light",
+    "Underlit",
+  ],
+  backgroundLighting: [
+    "Pure Black / Void",
+    "Pure White / Blown Out",
+    "Practical Lights in Background",
+    "Moody / Shadowy",
+    "Color Gel Wash",
+    "Gobo Patterns / Blinds",
   ],
   medium: [
     "Digital Photography",
@@ -306,21 +328,27 @@ export const OPTIONS = {
 };
 
 export const DEFAULT_STATE = {
-  // Technical
-  useReferenceTechnical: false,
+  // Camera & Lens
+  useReferenceCamera: false,
+  medium: "",
   cameraShotSize: "",
   multiSubjectFraming: "",
   cameraAngle: "",
-  lens: "",
   lensType: "",
+  lens: "",
   fStopIndex: 0,
-  lighting: "",
-  medium: "",
+  aspectRatio: "",
+  cameraCustom: "",
+  // Lighting & Color
+  useReferenceLighting: false,
+  globalLightingSetup: "",
+  lightQuality: "",
+  subjectLighting: "",
+  backgroundLighting: "",
   colorGrading: "",
   primaryBrandColor: "",
   secondaryBrandColor: "",
-  aspectRatio: "",
-  technicalCustom: "",
+  lightingCustom: "",
   // Subject
   useReferenceSubject: false,
   subjectType: "",

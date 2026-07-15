@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import Wheel from '@uiw/react-color-wheel';
 import { hsvaToHex, hexToHsva } from '@uiw/color-convert';
-import { ChevronDown, ChevronUp, Copy, RefreshCw, Check, Camera, User, Users, Image as ImageIcon, Wand2, Box, Lock, LogOut, Save, Bookmark, Trash2, Download } from 'lucide-react';
+import { ChevronDown, ChevronUp, Copy, RefreshCw, Check, Camera, User, Users, Image as ImageIcon, Wand2, Box, Lock, LogOut, Save, Bookmark, Trash2, Download, Sun } from 'lucide-react';
 import { OPTIONS, DEFAULT_STATE } from './constants';
 
 const Accordion = ({ title, icon: Icon, colorClass, isOpen, onToggle, children }) => (
@@ -218,7 +218,7 @@ const ColorPicker = ({ label, value, onChange }) => {
 
 function MainApp({ onLogout }) {
   const [state, setState] = useState(DEFAULT_STATE);
-  const [openSections, setOpenSections] = useState({ savedPrompts: false, technical: true, subject: false, supportingSubject: false, object: false, environment: false, overrides: false });
+  const [openSections, setOpenSections] = useState({ savedPrompts: false, camera: true, lighting: false, subject: false, supportingSubject: false, object: false, environment: false, overrides: false });
   const [flavor, setFlavor] = useState('standard');
   const [copied, setCopied] = useState(false);
   const [savedPrompts, setSavedPrompts] = useState(() => {
@@ -370,26 +370,41 @@ function MainApp({ onLogout }) {
       parts.push('(use reference given)');
     }
 
-    // Technical (End)
-    const techEndParts = [
+    // Camera & Lens
+    const cameraParts = [
       formatDropdown('Camera Shot Size', state.cameraShotSize),
       formatDropdown('Multi-Subject Framing', state.multiSubjectFraming),
       formatDropdown('Camera Angle', state.cameraAngle),
       formatDropdown('Lens Type', state.lensType),
       formatDropdown('Lens', state.lens),
       state.fStopIndex > 0 ? formatDropdown('F-Stop', OPTIONS.fStops[state.fStopIndex]) : '',
-      formatDropdown('Lighting', state.lighting),
+      state.cameraCustom
+    ].filter(Boolean);
+    if (cameraParts.length > 0) {
+      let str = cameraParts.join(', ');
+      if (state.useReferenceCamera) str += ' (use reference given for camera)';
+      parts.push(str);
+    } else if (state.useReferenceCamera) {
+      parts.push('(use reference given for camera)');
+    }
+
+    // Lighting & Color
+    const lightingParts = [
+      formatDropdown('Global Lighting Setup', state.globalLightingSetup),
+      formatDropdown('Light Quality', state.lightQuality),
+      formatDropdown('Subject Lighting', state.subjectLighting),
+      formatDropdown('Background Lighting', state.backgroundLighting),
       formatDropdown('Color Grading', state.colorGrading),
       state.primaryBrandColor ? `Primary Brand Color is ${state.primaryBrandColor}` : '',
       state.secondaryBrandColor ? `Secondary Brand Color is ${state.secondaryBrandColor}` : '',
-      state.technicalCustom
+      state.lightingCustom
     ].filter(Boolean);
-    if (techEndParts.length > 0) {
-      let str = techEndParts.join(', ');
-      if (state.useReferenceTechnical) str += ' (use reference given)';
+    if (lightingParts.length > 0) {
+      let str = lightingParts.join(', ');
+      if (state.useReferenceLighting) str += ' (use reference given for lighting)';
       parts.push(str);
-    } else if (state.useReferenceTechnical) {
-      parts.push('(use reference given)');
+    } else if (state.useReferenceLighting) {
+      parts.push('(use reference given for lighting)');
     }
     
     let compiled = parts.join(', ');
@@ -462,8 +477,8 @@ function MainApp({ onLogout }) {
           )}
         </Accordion>
 
-        <Accordion title="Technical Parameters" icon={Camera} colorClass="text-blue-400" isOpen={openSections.technical} onToggle={() => toggleSection('technical')}>
-          <ToggleSwitch label="Use Image Reference for Technical Parameters" checked={state.useReferenceTechnical} onChange={(v) => updateField('useReferenceTechnical', v)} />
+        <Accordion title="Camera & Lens Setup" icon={Camera} colorClass="text-blue-400" isOpen={openSections.camera} onToggle={() => toggleSection('camera')}>
+          <ToggleSwitch label="Use Image Reference for Camera Setup" checked={state.useReferenceCamera} onChange={(v) => updateField('useReferenceCamera', v)} />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 items-start">
             <Select label="Medium" value={state.medium} onChange={(v) => updateField('medium', v)} options={OPTIONS.medium} />
             <Select label="Camera Shot Size" value={state.cameraShotSize} onChange={(v) => updateField('cameraShotSize', v)} options={OPTIONS.cameraShotSize} />
@@ -472,15 +487,25 @@ function MainApp({ onLogout }) {
             <Select label="Lens Type" value={state.lensType} onChange={(v) => updateField('lensType', v)} options={OPTIONS.lensType} />
             <Select label="Lens" value={state.lens} onChange={(v) => updateField('lens', v)} options={OPTIONS.lens} />
             <FStopSlider label="F-Stop (Depth of Field)" value={state.fStopIndex} onChange={(v) => updateField('fStopIndex', v)} />
-            <Select label="Lighting" value={state.lighting} onChange={(v) => updateField('lighting', v)} options={OPTIONS.lighting} />
-            <Select label="Color Grading" value={state.colorGrading} onChange={(v) => updateField('colorGrading', v)} options={OPTIONS.colorGrading} />
             <Select label="Aspect Ratio" value={state.aspectRatio} onChange={(v) => updateField('aspectRatio', v)} options={OPTIONS.aspectRatio} />
+          </div>
+          <TextArea label="Custom Camera Details" value={state.cameraCustom} onChange={(v) => updateField('cameraCustom', v)} placeholder="e.g. shot on specific camera model, heavy film grain, motion blur..." />
+        </Accordion>
+
+        <Accordion title="Lighting & Color" icon={Sun} colorClass="text-yellow-400" isOpen={openSections.lighting} onToggle={() => toggleSection('lighting')}>
+          <ToggleSwitch label="Use Image Reference for Lighting" checked={state.useReferenceLighting} onChange={(v) => updateField('useReferenceLighting', v)} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 items-start">
+            <Select label="Global Lighting Setup" value={state.globalLightingSetup} onChange={(v) => updateField('globalLightingSetup', v)} options={OPTIONS.globalLightingSetup} />
+            <Select label="Light Quality" value={state.lightQuality} onChange={(v) => updateField('lightQuality', v)} options={OPTIONS.lightQuality} />
+            <Select label="Subject Lighting" value={state.subjectLighting} onChange={(v) => updateField('subjectLighting', v)} options={OPTIONS.subjectLighting} />
+            <Select label="Background Lighting" value={state.backgroundLighting} onChange={(v) => updateField('backgroundLighting', v)} options={OPTIONS.backgroundLighting} />
+            <Select label="Color Grading" value={state.colorGrading} onChange={(v) => updateField('colorGrading', v)} options={OPTIONS.colorGrading} />
           </div>
           <div className="flex flex-col mt-2">
             <ColorPicker label="Primary Brand Color" value={state.primaryBrandColor} onChange={(v) => updateField('primaryBrandColor', v)} />
             <ColorPicker label="Secondary Brand Color" value={state.secondaryBrandColor} onChange={(v) => updateField('secondaryBrandColor', v)} />
           </div>
-          <TextArea label="Custom Technical Details" value={state.technicalCustom} onChange={(v) => updateField('technicalCustom', v)} placeholder="e.g. shot on anamorphic lens with heavy grain, specific camera models..." />
+          <TextArea label="Custom Lighting Details" value={state.lightingCustom} onChange={(v) => updateField('lightingCustom', v)} placeholder="e.g. harsh red neon light from the left, green ambient glow, lens flares..." />
         </Accordion>
 
         <Accordion title="Main Subject Definition" icon={User} colorClass="text-pink-400" isOpen={openSections.subject} onToggle={() => toggleSection('subject')}>
