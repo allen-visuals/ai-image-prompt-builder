@@ -160,12 +160,11 @@ export const OPTIONS = {
     "Wrinkled/Aged Hands",
   ],
   hairTexture: [
-    "4C Afro",
-    "4A Coiled",
-    "Coarse Kinky",
-    "Curly",
     "Straight",
     "Wavy",
+    "Curly",
+    "Coily",
+    "Kinky",
   ],
   hairStyle: [
     "Bun",
